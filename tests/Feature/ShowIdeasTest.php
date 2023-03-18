@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Category;
 use App\Models\Idea;
 use App\Models\Status;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
@@ -18,6 +19,8 @@ class ShowIdeasTest extends TestCase
      * @return void
      */
     public function test_list_of_ideas_shows_on_main_page() {
+        $user = User::factory()->create();
+
         $categoryOne = Category::factory()->create([
             'name'=>'Category 1',
         ]);
@@ -37,6 +40,7 @@ class ShowIdeasTest extends TestCase
         ]);
 
         $ideaOne = Idea::factory()->create([
+            'user_id' => $user->id,
             'category_id' => $categoryOne->id,
             'status_id' => $statusOpen->id,
             'title'=>'My first idea',
@@ -44,6 +48,7 @@ class ShowIdeasTest extends TestCase
         ]);
 
         $ideaTwo = Idea::factory()->create([
+            'user_id' => $user->id,
             'category_id' => $categoryTwo->id,
             'status_id' => $statusConsidering->id,
             'title'=>'My second idea',
@@ -76,6 +81,7 @@ class ShowIdeasTest extends TestCase
         ]);
 
         $idea = Idea::factory()->create([
+            'user_id' => User::factory()->create()->id,
             'title'=>'My first idea',
             'category_id' => $category->id,
             'status_id' => $statusOpen->id,
@@ -102,6 +108,7 @@ class ShowIdeasTest extends TestCase
         ]);
 
         Idea::factory(Idea::PAGINATION_COUNT + 1)->create([
+            'user_id' => User::factory()->create()->id,
             'category_id' => $category->id,
             'status_id' => $statusOpen->id,
         ]);
@@ -118,12 +125,12 @@ class ShowIdeasTest extends TestCase
 
         $response->assertSuccessful();
 
-        $response->assertSee($ideaOne->title);
-        $response->assertDontSee($ideaEleven->title);
-
-        $response = $this->get('/?page=2');
         $response->assertSee($ideaEleven->title);
         $response->assertDontSee($ideaOne->title);
+
+        $response = $this->get('/?page=2');
+        $response->assertSee($ideaOne->title);
+        $response->assertDontSee($ideaEleven->title);
     }
 
     public function test_same_title_different_slugs() {
@@ -137,6 +144,7 @@ class ShowIdeasTest extends TestCase
         ]);
 
         $ideaOne = Idea::factory()->create([
+            'user_id' => User::factory()->create()->id,
             'title'=>'My first idea',
             'category_id' => $category->id,
             'status_id' => $statusOpen->id,
@@ -144,6 +152,7 @@ class ShowIdeasTest extends TestCase
         ]);
 
         $ideaTwo = Idea::factory()->create([
+            'user_id' => User::factory()->create()->id,
             'title'=>'My first idea',
             'category_id' => $category->id,
             'status_id' => $statusOpen->id,
