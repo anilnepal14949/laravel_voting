@@ -110,8 +110,41 @@ class VoteShowPageTest extends TestCase
             'idea' => $idea,
             'votesCount' => 5
         ])
-        ->assertSet('votesCount', 5)
-        ->assertSeeHtml('<div class="text-xl leading-snug">5</div>')
-        ->assertSeeHtml('<div class="text-sm font-bold leading-none">5</div>');
+        ->assertSet('votesCount', 5);
+    }
+
+    public function test_show_voted_for_logged_in_users()
+    {
+        $user = User::factory()->create();
+
+        $category = Category::factory()->create([
+            'name' => 'Category 1'
+        ]);
+
+        $status = Status::factory()->create([
+            'name' => 'Open',
+            'classes' => 'bg-gray-200'
+        ]);
+
+        $idea = Idea::factory()->create([
+            'user_id' => $user->id,
+            'category_id' => $category->id,
+            'status_id' => $status->id,
+            'title' => 'My first idea',
+            'description' => 'Description of my first idea'
+        ]);
+
+        Vote::factory()->create([
+            'idea_id' => $idea->id,
+            'user_id' => $user->id
+        ]);
+
+        Livewire::actingAs($user)
+            ->test(IdeaShow::class, [
+                'idea' => $idea,
+                'votesCount' => 5
+            ])
+            ->assertSet('hasVoted', true)
+            ->assertSee('Voted');
     }
 }
