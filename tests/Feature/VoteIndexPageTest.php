@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Http\Livewire\IdeaIndex;
 use App\Http\Livewire\IdeaShow;
+use App\Http\Livewire\IdeasIndex;
 use App\Models\Category;
 use App\Models\Idea;
 use App\Models\Status;
@@ -80,7 +81,7 @@ class VoteIndexPageTest extends TestCase
             'user_id' => $user->id
         ]);
 
-        $this->get(route('idea.index'))
+        Livewire::test(IdeasIndex::class)
             ->assertViewHas('ideas', function($ideas) {
                 return $ideas->first()->votes_count == 2;
             });
